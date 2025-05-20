@@ -1,5 +1,5 @@
 .PRECIOUS: %.i %.s  # 告诉 make 不要删除 .i 和 .s 文件
-OUTPATH = build
+OUTPATH = ./build
 SAVEMIDDLE = -save-temps
 SRC = $(wildcard *.c)
 
@@ -18,13 +18,8 @@ TARGET = $(OUTPATH)/excue
 $(TARGET):$(OBJ)
 	gcc $(OBJ) -o $(TARGET)
 
-$(OUTPATH)/%.i:%.c
-	gcc -E $< -o $@
-
-$(OUTPATH)/%.s:$(OUTPATH)/%.i
-	gcc -S $< -o $@
-
-$(OUTPATH)/%.o:$(OUTPATH)/%.s
+# 模式匹配规则：当make需要目标 xyz.o 时，自动生成一条 xyz.o: xyz.c 规则:
+$(OUTPATH)/%.o:%.c
 	gcc -c $< -o $@
 
 
@@ -43,8 +38,12 @@ clean:
 	rm -rf $(OUTPATH)
 
 run :
+	@if [ ! -d $(OUTPATH) ]; then \
+	mkdir -p $(OUTPATH) ; \
+	fi
+	@make;
 	./$(TARGET)
 
 rebuild:
 	@make clean
-	@make build
+	@make run
