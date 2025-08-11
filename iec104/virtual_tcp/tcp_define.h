@@ -1,0 +1,42 @@
+
+
+
+
+
+#define PORT 8888   // 监听端口
+
+#define SERVER_IP ("127.0.0.4")
+#define CLIENT_IP ("127.0.0.222")
+
+
+enum
+{
+    TCP_SERVER_CREAT = 0,
+    TCP_SERVER_CONFIG,
+    TCP_SERVER_BIND,
+    TCP_SERVER_LISTING,
+    TCP_SERVER_WAIT_LINK,
+    TCP_SERVER_IDLE,
+    TCP_SERVER_CLOSE,
+    TCP_SERVER_STATE_MANAGE,
+}VIRTUAL_TCP_SERVER;
+
+
+
+enum
+{
+    TCP_CLIENT_CREAT = 0,
+    TCP_CLIENT_CONFIG,
+    TCP_CLIENT_CONNECT,
+    TCP_CLIENT_IDLE,
+    TCP_CLIENT_CLOSE,
+    TCP_CLIENT_STATE_MANAGE,
+}VIRTUAL_TCP_CLIENT;
+
+
+
+typedef struct 
+{
+    void (*fun)(void*);
+}virtual_tcp_fsm;
+

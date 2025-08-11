@@ -38,8 +38,10 @@ int main(void)
 {
     pthread_t tid1, tid2;
     int ret = 0;
-    
+
     register_message_list();
+    printf("register\n");
+    
 
     ret = pthread_create(&tid1, NULL, client_104, NULL);
     if(ret != 0) {

@@ -1,0 +1,1 @@
+#define MY_NULL ((void*)0)
