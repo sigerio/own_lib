@@ -16,7 +16,7 @@ TARGET = $(OUTPATH)/excue
 
 
 $(TARGET):$(OBJ)
-	gcc $(OBJ) -o $(TARGET)
+	gcc $(OBJ) -g -o $(TARGET)
 
 $(OUTPATH)/%.i:%.c
 	gcc -E $< -o $@
@@ -43,8 +43,17 @@ clean:
 	rm -rf $(OUTPATH)
 
 run :
+	@if [ ! -d $(OUTPATH) ]; then \
+	mkdir -p $(OUTPATH) ; \
+	fi
+	@make;
 	./$(TARGET)
 
 rebuild:
 	@make clean
-	@make build
+	@make run
+
+gdb:
+	gdb $(TARGET)
+
+

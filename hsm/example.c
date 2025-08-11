@@ -181,28 +181,28 @@
      
      /* IDLE -> RUNNING */
      hsm_dispatch(&hsm, &buttonEvent);
-     printf("当前状态: %s\n\n", hsm_get_current_state(&hsm)->name);
+     printf("1当前状态: %s\n\n", hsm_get_current_state(&hsm)->name);
      
      /* 处理几个超时事件 */
      hsm_dispatch(&hsm, &timeoutEvent);
      hsm_dispatch(&hsm, &timeoutEvent);
-     printf("当前状态: %s\n\n", hsm_get_current_state(&hsm)->name);
+     printf("2当前状态: %s\n\n", hsm_get_current_state(&hsm)->name);
      
      /* RUNNING -> PAUSED */
      hsm_dispatch(&hsm, &buttonEvent);
-     printf("当前状态: %s\n\n", hsm_get_current_state(&hsm)->name);
+     printf("3当前状态: %s\n\n", hsm_get_current_state(&hsm)->name);
      
      /* PAUSED -> RUNNING */
      hsm_dispatch(&hsm, &buttonEvent);
-     printf("当前状态: %s\n\n", hsm_get_current_state(&hsm)->name);
+     printf("4当前状态: %s\n\n", hsm_get_current_state(&hsm)->name);
      
      /* 触发错误 */
      hsm_dispatch(&hsm, &errorEvent);
-     printf("当前状态: %s\n\n", hsm_get_current_state(&hsm)->name);
+     printf("5当前状态: %s\n\n", hsm_get_current_state(&hsm)->name);
      
      /* ERROR -> IDLE */
      hsm_dispatch(&hsm, &buttonEvent);
-     printf("当前状态: %s\n\n", hsm_get_current_state(&hsm)->name);
+     printf("6当前状态: %s\n\n", hsm_get_current_state(&hsm)->name);
      
      printf("===== 状态机示例结束 =====\n");
  }
