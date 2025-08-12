@@ -1,3 +1,6 @@
+#ifndef __MESSAGE_BOX_H__
+#define __MESSAGE_BOX_H__
+
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
@@ -30,3 +33,5 @@ void register_message_list(void);
 void write_in_message_list(message_list src_node);
 
 message_list* read_out_message_list(void);
+
+#endif
