@@ -6,7 +6,7 @@
 #include <string.h>
 #include <stdint.h>
 
-
+#include <netinet/in.h>     // sockaddr_in
 
 
 
