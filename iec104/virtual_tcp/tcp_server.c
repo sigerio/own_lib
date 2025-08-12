@@ -23,6 +23,11 @@ void set_server_work_state(uint8_t next_state)
     tcp_server_info.work_time = 0;
 }
 
+uint8_t get_server_runnint_state(void)
+{
+    return tcp_server_info.cur_server_state;
+}
+
 void virtual_tcp_server_creat(void* arg)
 {
     // 1. 创建套接字 (IPv4, TCP)
@@ -31,6 +36,7 @@ void virtual_tcp_server_creat(void* arg)
         perror("failed to creat socket\n");
         exit(EXIT_FAILURE);
     }
+    tcp_server_info.cur_server_state = TCP_SERVER_CREAT;
     set_server_work_state(TCP_SERVER_CONFIG);
 
 }
@@ -43,6 +49,7 @@ void virtual_tcp_server_config(void* arg)
     tcp_server_info.server_addr.sin_addr.s_addr = INADDR_ANY;//inet_addr(CLIENT_IP); // 监听本机所有 IP -> INADDR_ANY; 
     tcp_server_info.server_addr.sin_port = htons(PORT);
 
+    tcp_server_info.cur_server_state = TCP_SERVER_CONFIG;
     set_server_work_state(TCP_SERVER_BIND);
 }
 
@@ -54,7 +61,7 @@ void virtual_tcp_server_bind(void* arg)
         close(tcp_server_info.server_fd);
         exit(EXIT_FAILURE);
     }
-
+    tcp_server_info.cur_server_state = TCP_SERVER_BIND;
     set_server_work_state(TCP_SERVER_LISTING);
 }
 
@@ -67,13 +74,15 @@ void virtual_tcp_server_linsting(void* arg)
         close(tcp_server_info.server_fd);
         exit(EXIT_FAILURE);
     }
-    printf("TCP server has started , bind port %d...\n", PORT);
 
+    printf("TCP server has started , server addr %s ;bind port %d...\n",inet_ntoa(tcp_server_info.server_addr.sin_addr), PORT);
+    tcp_server_info.cur_server_state = TCP_SERVER_LISTING;
     set_server_work_state(TCP_SERVER_WAIT_LINK);
+
 }
 
 
-void virtual_tcp_server_wait_connect(void* arg)
+void virtual_tcp_server_wait_link(void* arg)
 {
     socklen_t addr_len = sizeof(tcp_server_info.client_addr);
     // 5. 等待客户端连接
@@ -83,17 +92,47 @@ void virtual_tcp_server_wait_connect(void* arg)
         close(tcp_server_info.server_fd);
         exit(EXIT_FAILURE);
     }
-    printf("connect success: %s:%d\n", inet_ntoa(tcp_server_info.client_addr.sin_addr), ntohs(tcp_server_info.client_addr.sin_port));
-
+    printf("connect signal from: %s:%d\n", inet_ntoa(tcp_server_info.client_addr.sin_addr), ntohs(tcp_server_info.client_addr.sin_port));
     
-    set_server_work_state(TCP_SERVER_IDLE);
+    
+
+
+    tcp_server_info.cur_server_state = TCP_SERVER_WAIT_LINK;
+    set_server_work_state(TCP_SERVER_WAIT_HAND);
 }
 
+
+
+void virtual_tcp_server_wait_hand(void* arg)
+{
+    char buffer[1024];
+    
+    // 6. 接收客户端数据
+    int len = recv(tcp_server_info.client_fd, buffer, sizeof(buffer) - 1, 0);
+    if (len > 0) {
+        
+        if(strcmp(CLIENT_HAND_MESSAGE,buffer) == 0)
+        {
+            //发送握手信息
+            send(tcp_server_info.client_fd, SERVER_HAN_MESSAGE, strlen(SERVER_HAN_MESSAGE), 0);
+            printf("hand success , message from client is: %s\n",buffer);
+            set_server_work_state(TCP_SERVER_IDLE);
+        }
+    }
+
+    
+}
 
 //TODO 需要在这里将消息处理之消息盒子中
 void virtual_tcp_server_idle(void* arg)
 {
     char buffer[1024];
+    if(tcp_server_info.cur_server_state != TCP_SERVER_IDLE)
+    {
+        tcp_server_info.cur_server_state = TCP_SERVER_IDLE;
+        
+    }
+        
     // 6. 接收客户端数据
     int len = recv(tcp_server_info.client_fd, buffer, sizeof(buffer) - 1, 0);
     if (len > 0) {
@@ -101,8 +140,8 @@ void virtual_tcp_server_idle(void* arg)
         // printf("收到: %s\n", buffer);
 
         // // 7. 回复数据
-        // send(client_fd, "你好，客户端！", strlen("你好，客户端！"), 0);
-        printf("server recv some messages\n");
+        
+        printf("%s\n",buffer);
     }
 
     
@@ -128,7 +167,8 @@ void virtual_tcp_server_fsm_register(void)
     tcp_server_fsm[TCP_SERVER_CONFIG].fun = virtual_tcp_server_config;
     tcp_server_fsm[TCP_SERVER_BIND].fun = virtual_tcp_server_bind;
     tcp_server_fsm[TCP_SERVER_LISTING].fun = virtual_tcp_server_linsting;
-    tcp_server_fsm[TCP_SERVER_WAIT_LINK].fun = virtual_tcp_server_wait_connect;
+    tcp_server_fsm[TCP_SERVER_WAIT_LINK].fun = virtual_tcp_server_wait_link;
+    tcp_server_fsm[TCP_SERVER_WAIT_HAND].fun = virtual_tcp_server_wait_hand;
     tcp_server_fsm[TCP_SERVER_IDLE].fun = virtual_tcp_server_idle;
     tcp_server_fsm[TCP_SERVER_CLOSE].fun = virtual_tcp_server_close;
 }

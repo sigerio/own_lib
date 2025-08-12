@@ -9,17 +9,6 @@
 
 
 
-typedef enum
-{
-    TCP_SERVER_CREAT = 0,
-    TCP_SERVER_CONFIG,
-    TCP_SERVER_BIND,
-    TCP_SERVER_LISTING,
-    TCP_SERVER_WAIT_LINK,
-    TCP_SERVER_IDLE,
-    TCP_SERVER_CLOSE,
-    TCP_SERVER_STATE_MANAGE,
-}VIRTUAL_TCP_SERVER;
 
 
 
@@ -31,6 +20,7 @@ typedef struct
     int client_fd;
     uint8_t next_server_state;//服务端将切换的工作状态
     uint8_t cur_server_state;//服务端此刻的工作状态
+    uint8_t link_state;
     uint64_t work_time;
     /* data */
 }virtual_tcp_server_info;

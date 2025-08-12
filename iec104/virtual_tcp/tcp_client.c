@@ -31,6 +31,7 @@ void virtual_tcp_client_creat(void* arg)
 
 void virtual_tcp_client_config(void* arg)
 {
+    while(get_server_runnint_state() < TCP_SERVER_BIND);
     // 1. 配置本地 IP 和端口
     memset(&tcp_client_info.client_addr, 0, sizeof(tcp_client_info.client_addr));
     tcp_client_info.client_addr.sin_family = AF_INET;
@@ -45,6 +46,7 @@ void virtual_tcp_client_config(void* arg)
     }
 
     tcp_client_info.server_addr = get_tcp_server_sock();
+    printf("server: %s has running\n",inet_ntoa(tcp_client_info.server_addr.sin_addr));
     // 2. 配置服务器信息
     // tcp_client_info.server_addr.sin_family = AF_INET;           // IPv4
     // tcp_client_info.server_addr.sin_port = htons(PORT);          // 目标端口（例：502）
@@ -56,15 +58,36 @@ void virtual_tcp_client_config(void* arg)
 
 void virtual_tcp_client_connect(void* arg)
 {
+
+    while(get_server_runnint_state() < TCP_SERVER_LISTING);
     // 3. 连接服务器
     if (connect(tcp_client_info.client_fd, (struct sockaddr *)&tcp_client_info.server_addr, sizeof(tcp_client_info.server_addr)) < 0) {
         perror("连接失败");
         close(tcp_client_info.client_fd);
         exit(EXIT_FAILURE);
     }
-    printf("连接成功！\n");
+    printf("connect success\n");
 
-    set_client_work_state(TCP_CLIENT_IDLE);
+    //发送握手信息
+    send(tcp_client_info.client_fd, CLIENT_HAND_MESSAGE, strlen(CLIENT_HAND_MESSAGE), 0);
+    
+    set_client_work_state(TCP_CLIENT_WAIT_HAND);
+}
+
+void virtual_tcp_client_wait_hand(void* arg)
+{
+    char buffer[1024];
+    // 5. 接收数据
+    int len = recv(tcp_client_info.client_fd, buffer, sizeof(buffer) - 1, 0);
+    if (len > 0) {
+        if(strcmp(SERVER_HAN_MESSAGE,buffer) == 0)
+        {
+            
+            set_client_work_state(TCP_CLIENT_IDLE);
+            printf("hand success , message from server is : %s\n",buffer);
+        }
+        
+    }
 }
 
 
@@ -72,14 +95,16 @@ void virtual_tcp_client_connect(void* arg)
 void virtual_tcp_client_idle(void* arg)
 {
     char buffer[1024];
-    // // 4. 发送数据
-    // const char *msg = "Hello TCP";
-    // send(tcp_client_info.client_fd, msg, strlen(msg), 0);
-
+    
+    if(tcp_client_info.cur_client_state != TCP_CLIENT_IDLE)
+    {
+        tcp_client_info.cur_client_state = TCP_CLIENT_IDLE;
+        
+    }
     // 5. 接收数据
     int len = recv(tcp_client_info.client_fd, buffer, sizeof(buffer) - 1, 0);
     if (len > 0) {
-        printf("client recv some message\n");
+        printf("%s\n",buffer);
     }
 }
 
@@ -105,6 +130,7 @@ void virtual_tcp_client_fsm_register(void)
     tcp_client_fsm[TCP_CLIENT_CREAT].fun = virtual_tcp_client_creat;
     tcp_client_fsm[TCP_CLIENT_CONFIG].fun = virtual_tcp_client_config;
     tcp_client_fsm[TCP_CLIENT_CONNECT].fun = virtual_tcp_client_connect;
+    tcp_client_fsm[TCP_CLIENT_WAIT_HAND].fun = virtual_tcp_client_wait_hand;
     tcp_client_fsm[TCP_CLIENT_IDLE].fun = virtual_tcp_client_idle;
     tcp_client_fsm[TCP_CLIENT_CLOSE].fun = virtual_tcp_client_close;
     
