@@ -12,6 +12,11 @@ virtual_tcp_fsm  tcp_server_fsm[TCP_SERVER_STATE_MANAGE];
 
 
 
+struct sockaddr_in get_tcp_server_sock(void)
+{
+    return tcp_server_info.server_addr;
+}
+
 void set_server_work_state(uint8_t next_state)
 {
     tcp_server_info.next_server_state = next_state;

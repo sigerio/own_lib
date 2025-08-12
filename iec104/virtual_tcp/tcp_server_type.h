@@ -7,7 +7,7 @@
 #include <stdint.h>
 
 
-#include <netinet/in.h>     // sockaddr_in
+
 
 typedef enum
 {

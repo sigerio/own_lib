@@ -2,7 +2,7 @@
 #define __TCP_DEFINE_H__
 
 
-
+#include <netinet/in.h>     // sockaddr_in
 
 #define PORT 8888   // 监听端口
 
@@ -12,7 +12,7 @@
 
 
 
-
+struct sockaddr_in get_tcp_server_sock(void);
 
 
 

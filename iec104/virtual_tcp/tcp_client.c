@@ -35,7 +35,7 @@ void virtual_tcp_client_config(void* arg)
     memset(&tcp_client_info.client_addr, 0, sizeof(tcp_client_info.client_addr));
     tcp_client_info.client_addr.sin_family = AF_INET;
     tcp_client_info.client_addr.sin_port = htons(0);//htons(PORT); // 0 表示让系统自动分配端口
-    tcp_client_info.client_addr.sin_addr.s_addr = inet_addr(CLIENT_IP); // 客户端要使用的本地IP
+    tcp_client_info.client_addr.sin_addr.s_addr = INADDR_ANY;//inet_addr(CLIENT_IP); // 客户端要使用的本地IP
 
     if (bind(tcp_client_info.client_fd, (struct sockaddr*)&tcp_client_info.client_addr, sizeof(tcp_client_info.client_addr)) < 0) {
         perror("client addr has binded failed");
@@ -44,11 +44,11 @@ void virtual_tcp_client_config(void* arg)
         exit(EXIT_FAILURE);
     }
 
-
+    tcp_client_info.server_addr = get_tcp_server_sock();
     // 2. 配置服务器信息
-    tcp_client_info.server_addr.sin_family = AF_INET;           // IPv4
-    tcp_client_info.server_addr.sin_port = htons(PORT);          // 目标端口（例：502）
-    tcp_client_info.server_addr.sin_addr.s_addr = inet_addr(SERVER_IP); // 目标IP
+    // tcp_client_info.server_addr.sin_family = AF_INET;           // IPv4
+    // tcp_client_info.server_addr.sin_port = htons(PORT);          // 目标端口（例：502）
+    // tcp_client_info.server_addr.sin_addr.s_addr = inet_addr(SERVER_IP); // 目标IP
 
     set_client_work_state(TCP_CLIENT_CONNECT);
 }
