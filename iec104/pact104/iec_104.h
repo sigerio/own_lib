@@ -75,15 +75,46 @@ typedef union
     
 }pact_104_ASDU_vsq;
 
+
+typedef union 
+{
+    struct 
+    {
+        uint16_t n:13;
+        uint16_t PN:2;//当从站接收到无法识别或着无法操作的控制指令时，回复帧中应将该位置1；表示消极确认，意味着无法识别或操作，反之置0；
+        uint16_t T:1; //测试模式，1->仅用于消息测试，不执行控制等命令
+
+    }cot_bit;
+    uint16_t cot;
+    
+}pact_104_ASDU_cot;
+
+
+
 typedef struct 
 {
-    uint8_t type_id;    //帧类型号，比如对时，总召等
-    pact_104_ASDU_vsq VSQ; //消息体长度
-    uint16_t COT;   //消息传送原因
-    uint16_t COA;    //公共地址，从设备发出去的消息需要用此来标记设备编号，站控下发需要此来标记消息去向， 0禁止使用，65535标记为广播，1~65534
     uint8_t IOA[3]; //三字节的IOA，即信息对象地址，例如0x000a01，则IOA[0] = 0x01;IOA[1] = 0x0A; IOA[2] = 0x00;
+    uint8_t* info;//信息对象数据格式，其格式和长度均有type_id决定
+}pact_104_ASDU_info_obj;
+
+
+
+typedef struct 
+{
+    uint8_t type_id;    //帧类型号，比如对时，总召等,同时帧类型也决定了消息体的长度，同类型的消息体其长度是一致的，不同类型的消息体需要通过不同的消息帧来发送
+    pact_104_ASDU_vsq VSQ; //消息体长度
+    pact_104_ASDU_cot COT;   //消息传送原因
+    uint8_t ORG;    //识别地址，一般指消息发送方地址，通常忽略不计
+    uint16_t COA;    //公共地址，从设备发出去的消息需要用此来标记设备编号，站控下发需要此来标记消息去向， 0禁止使用，65535标记为广播，广播出去的消息在被回复时，必须带上回复方的地址，1~65534
+    pact_104_ASDU_info_obj info_obj;
 }pact_104_ASDU;
 
+typedef struct 
+{
+    pact_104_APCI apci;
+    pact_104_ASDU asdu;
+    /* data */
+}pact_104_APDU;
 
 
 
