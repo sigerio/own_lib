@@ -2,6 +2,18 @@
 #define __IEC_104_H__
 #include <stdint.h>
 
+
+#define PACT_104_ACPI_U_FORM_START_ACT      0x0007  //启动数据传输-服务端控制客户端开始传输数据
+#define PACT_104_ACPI_U_FORM_START_CON      0x000B  //客户端回复服务端，已确认开启数据传输
+
+#define PACT_104_ACPI_U_FORM_STOP_ACT       0x0013  //主站 控制从站停止数据传输
+#define PACT_104_ACPI_U_FORM_STOP_CON       0x0023  //从站回复主站确认停止数据传输
+
+#define PACT_104_ACPI_U_FORM_TESTER_ACT     0x0043  // 主/从确认链路是否正常
+#define PACT_104_ACPI_U_FORM_TESTER_CON     0x0083  // 回复确认帧
+
+
+
 typedef union 
 {
     struct 
