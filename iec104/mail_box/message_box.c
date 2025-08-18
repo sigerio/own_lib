@@ -11,61 +11,68 @@ typedef struct
 
 }list_manage;
 
-list_manage list_info;
+list_manage list_info_;
 
-void update_manage_info(uint8_t info_type, message_list* info)
+void update_manage_info(void* list_belong_to, uint8_t info_type, void* info)
 {
+    list_manage* list_info = (list_manage*)list_belong_to;
+    message_list* add_info = (message_list*)info;
     if(info_type == UPDATE_HEAD)
     {
-        list_info.head = info;
+        list_info->head = add_info;
     }
     else if(info_type == UPDATE_TAIL)
     {
-        list_info.tail = info;
+        list_info->tail = add_info;
     }
     else if(info_type == UPDATE_ALL)
     {
-        list_info.head = info;
-        list_info.tail = info;
+        list_info->head = add_info;
+        list_info->tail = add_info;
     }
     
     
 }
 
-int list_err(list_manage list)
+int list_err(void list_belong_to)
 {
-    if((list.head == MY_NULL)||(list.tail == MY_NULL))
+    list_manage list_info = (list_manage)list_belong_to;
+    if((list_info.head == MY_NULL)||(list_info.tail == MY_NULL))
         return -1;
     else   
         return 0;
 }
 
 
-message_list* get_list_tail(void)
+void* get_list_tail(void list_belong_to)
 {
-    return list_info.tail;
+    list_manage list_info = (list_manage)list_belong_to;
+    return (void*)list_info.tail;
 }
 
 
-message_list* get_list_head(void)
+void* get_list_head(void list_belong_to)
 {
-    return list_info.head;
+    list_manage list_info = (list_manage)list_belong_to;
+    return (void*)list_info.head;
 }
 
-message_list* buy_list_node(message_list src_node)
+void* buy_list_node(void src_node)
 {
+    message_list node = (message_list)src_node;
     uint16_t node_len = (uint16_t)sizeof(message_list);
     message_list* node = (message_list*)malloc(node_len);
 
     memcpy(node, &src_node, node_len);
 
-    return node;
+    return (void*)node;
 }
 
 
 
-void sell_list_node(message_list* node)
+void sell_list_node(void* src_node)
 {
+    message_list node = (message_list*)src_node;
     if(node->data != MY_NULL)
         free(node->data);
     if(node != MY_NULL)
@@ -73,7 +80,7 @@ void sell_list_node(message_list* node)
 }
 
 
-void register_message_list(void)
+void register_message_list(void* node_belongs_to)
 {
     message_list loc_head;
     loc_head.data_from = 0;
@@ -84,13 +91,14 @@ void register_message_list(void)
 
     message_list* dst_node = buy_list_node(loc_head);
 
-    update_manage_info(UPDATE_ALL, dst_node);
+    update_manage_info(node_belongs_to,UPDATE_ALL, dst_node);
 }
 
 
 
-void write_in_message_list(message_list src_node)
+void write_in_message_list(void* node_belongs_to, void write_node)
 {
+    message_list src_node = (message_list)write_node;
     message_list* tail = get_list_tail();
     message_list* node = buy_list_node(src_node);
     if(tail == MY_NULL)
@@ -98,43 +106,43 @@ void write_in_message_list(message_list src_node)
     
     tail->next = node;
 
-    update_manage_info(UPDATE_TAIL, node);    
+    update_manage_info(node_belongs_to, UPDATE_TAIL, node);    
     
 }
 
 //是否增加对空节点的严格检测?
-message_list* read_out_message_list(void)
+void* read_out_message_list(void list_belong_to)
 {
-    message_list* head = get_list_head();
+    message_list* head = get_list_head(list_belong_to);
 
     message_list* node = head->next;
     head->next = node->next;
     
-    return node;
+    return (void)node;
 }
 
 
 
 
-void send_message(uint8_t data_from, uint8_t* data, uint8_t len)
-{
-    message_list src_node;
-    src_node.data_from = data_from;
-    src_node.idx++;
-    src_node.len = len;
-    src_node.data = (uint8_t*)malloc(len);
-    memcpy(src_node.data,data,len);
+// void send_message(uint8_t data_from, uint8_t* data, uint8_t len)
+// {
+//     message_list src_node;
+//     src_node.data_from = data_from;
+//     src_node.idx++;
+//     src_node.len = len;
+//     src_node.data = (uint8_t*)malloc(len);
+//     memcpy(src_node.data,data,len);
 
-    write_in_message_list(src_node);
+//     write_in_message_list(src_node);
 
-}
+// }
 
 
 
-uint8_t* read_message(void)
-{
-    message_list* data_node = read_out_message_list();
-}
+// uint8_t* read_message(void)
+// {
+//     message_list* data_node = read_out_message_list();
+// }
 
 
 #if 0

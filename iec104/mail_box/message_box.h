@@ -27,12 +27,12 @@ typedef struct message_node
     
 }message_list;
 
-void sell_list_node(message_list* node);
+void sell_list_node(void* node);
 void register_message_list(void);
 
-void write_in_message_list(message_list src_node);
+void write_in_message_list(void src_node);
 
-message_list* read_out_message_list(void);
+void* read_out_message_list(void);
 
 
 #endif
