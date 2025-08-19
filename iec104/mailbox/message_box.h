@@ -16,6 +16,14 @@ enum
 
 };
 
+enum{
+    NO_SOURCE = 0,
+    FROM_CLIENT,
+    FROM_SERVER,
+};
+
+
+
 
 typedef struct message_node
 {
@@ -27,12 +35,23 @@ typedef struct message_node
     
 }message_list;
 
-void sell_list_node(void* node);
-void register_message_list(void);
 
-void write_in_message_list(void src_node);
 
-void* read_out_message_list(void);
+typedef struct 
+{
+    message_list* head;
+    message_list* tail;
+
+}list_manage;
+
+
+
+
+void register_message_list(list_manage* node_belongs_to);
+void write_in_message_list(list_manage node_belongs_to, message_list write_node);
+int list_err(list_manage list_belong_to);
+
+
 
 
 #endif

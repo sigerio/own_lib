@@ -4,10 +4,10 @@ CFLAGS := -Wall -O2 -I.
 BUILD_DIR := build
 TARGET := excue
 
-SRC_DIRS := client104 server104 virtual_tcp
+SRC_DIRS := client104 server104 virtual_tcp pact104 mailbox
 
 # 根目录的源文件（除子目录外的 .c）
-ROOT_SRCS := main.c message_box.c
+ROOT_SRCS := main.c
 
 # 根目录对应的目标文件
 ROOT_OBJS := $(patsubst %.c,$(BUILD_DIR)/%.o,$(ROOT_SRCS))

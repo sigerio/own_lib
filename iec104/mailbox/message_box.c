@@ -1,86 +1,78 @@
 #include "message_box.h"
-#include "my_def.h"
+#include "../my_def.h"
 
 
 
 
-typedef struct 
+
+
+list_manage list_info;
+
+void update_manage_info(list_manage* list_belong_to, uint8_t info_type, message_list* info)
 {
-    message_list* head;
-    message_list* tail;
-
-}list_manage;
-
-list_manage list_info_;
-
-void update_manage_info(void* list_belong_to, uint8_t info_type, void* info)
-{
-    list_manage* list_info = (list_manage*)list_belong_to;
-    message_list* add_info = (message_list*)info;
     if(info_type == UPDATE_HEAD)
     {
-        list_info->head = add_info;
+        list_belong_to->head = info;
     }
     else if(info_type == UPDATE_TAIL)
     {
-        list_info->tail = add_info;
+        list_belong_to->tail = info;
     }
     else if(info_type == UPDATE_ALL)
     {
-        list_info->head = add_info;
-        list_info->tail = add_info;
+        list_belong_to->head = info;
+        list_belong_to->tail = info;
     }
     
     
 }
 
-int list_err(void list_belong_to)
+int list_err(list_manage list_belong_to)
 {
-    list_manage list_info = (list_manage)list_belong_to;
-    if((list_info.head == MY_NULL)||(list_info.tail == MY_NULL))
+
+    if((list_belong_to.head->next == MY_NULL)&&(list_belong_to.tail == MY_NULL))
         return -1;
     else   
         return 0;
 }
 
 
-void* get_list_tail(void list_belong_to)
+message_list* get_list_tail(list_manage list_belong_to)
 {
-    list_manage list_info = (list_manage)list_belong_to;
-    return (void*)list_info.tail;
+    return list_belong_to.tail;
 }
 
 
-void* get_list_head(void list_belong_to)
+message_list* get_list_head(list_manage list_belong_to)
 {
-    list_manage list_info = (list_manage)list_belong_to;
-    return (void*)list_info.head;
+
+    return list_belong_to.head;
 }
 
-void* buy_list_node(void src_node)
+message_list* buy_list_node(message_list src_node)
 {
-    message_list node = (message_list)src_node;
+    
     uint16_t node_len = (uint16_t)sizeof(message_list);
     message_list* node = (message_list*)malloc(node_len);
 
     memcpy(node, &src_node, node_len);
 
-    return (void*)node;
+    return node;
 }
 
 
 
-void sell_list_node(void* src_node)
+void sell_list_node(message_list* src_node)
 {
-    message_list node = (message_list*)src_node;
-    if(node->data != MY_NULL)
-        free(node->data);
-    if(node != MY_NULL)
-        free(node);
+    
+    if(src_node->data != MY_NULL)
+        free(src_node->data);
+    if(src_node != MY_NULL)
+        free(src_node);
 }
 
 
-void register_message_list(void* node_belongs_to)
+void register_message_list(list_manage* node_belongs_to)
 {
     message_list loc_head;
     loc_head.data_from = 0;
@@ -96,29 +88,29 @@ void register_message_list(void* node_belongs_to)
 
 
 
-void write_in_message_list(void* node_belongs_to, void write_node)
+void write_in_message_list(list_manage node_belongs_to, message_list write_node)
 {
-    message_list src_node = (message_list)write_node;
-    message_list* tail = get_list_tail();
-    message_list* node = buy_list_node(src_node);
+    // message_list src_node = (message_list)write_node;
+    message_list* tail = get_list_tail(node_belongs_to);
+    message_list* node = buy_list_node(write_node);
     if(tail == MY_NULL)
         return;
     
     tail->next = node;
 
-    update_manage_info(node_belongs_to, UPDATE_TAIL, node);    
+    update_manage_info(&node_belongs_to, UPDATE_TAIL, node);    
     
 }
 
 //是否增加对空节点的严格检测?
-void* read_out_message_list(void list_belong_to)
+message_list* read_out_message_list(list_manage list_belong_to)
 {
     message_list* head = get_list_head(list_belong_to);
 
     message_list* node = head->next;
     head->next = node->next;
     
-    return (void)node;
+    return node;
 }
 
 

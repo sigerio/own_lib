@@ -12,7 +12,7 @@
 
 
 
-#include "message_box.h"
+#include "mailbox/message_box.h"
 #include "virtual_tcp/tcp_server_type.h"
 #include "virtual_tcp/tcp_client_type.h"
 
@@ -39,7 +39,7 @@ int main(void)
     pthread_t tid1, tid2, tid3, tid4;
     int ret = 0;
 
-    register_message_list();
+    // register_message_list();
     printf("register\n");
     
 
