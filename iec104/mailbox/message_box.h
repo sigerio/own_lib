@@ -46,11 +46,11 @@ typedef struct
 
 
 
-
+void sell_list_node(message_list* src_node);
 void register_message_list(list_manage* node_belongs_to);
 void write_in_message_list(list_manage node_belongs_to, message_list write_node);
 int list_err(list_manage list_belong_to);
-
+message_list* read_out_message_list(list_manage list_belong_to);
 
 
 
